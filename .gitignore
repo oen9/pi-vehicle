@@ -1,2 +1,8 @@
 *.class
 *.log
+
+.idea/
+target/
+node_modules/
+package-lock.json
+todo
