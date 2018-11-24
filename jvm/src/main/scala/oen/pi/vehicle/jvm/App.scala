@@ -5,6 +5,7 @@ import java.util.concurrent.Executors
 import cats.effect._
 import cats.implicits._
 import oen.pi.vehicle.jvm.config.AppConfig
+import oen.pi.vehicle.jvm.hardware.VehicleController
 import org.http4s.server.blaze.BlazeBuilder
 
 import scala.concurrent.ExecutionContext
@@ -12,15 +13,16 @@ import scala.concurrent.ExecutionContext
 object App extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = {
-    createServer[IO]()
+    createSingleThreadContextShift[IO].use(cs => createServer[IO](cs))
   }
 
-  def createServer[F[_] : ContextShift : ConcurrentEffect : Timer](): F[ExitCode] = {
+  def createServer[F[_] : ContextShift : ConcurrentEffect : Timer](turningCS: ContextShift[IO]): F[ExitCode] = {
     for {
       conf <- AppConfig.read()
       blockingEc = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(4))
+      vehicleController <- VehicleController[F](conf.gpio, turningCS)
       staticEndpoints = StaticEndpoints[F](blockingEc)
-      vehicleControlEndpoints = VehicleControlEndpoints[F]
+      vehicleControlEndpoints = VehicleControlEndpoints[F](vehicleController)
       exitCode <- BlazeBuilder[F]
         .bindHttp(conf.http.port, conf.http.host)
         .mountService(staticEndpoints.endpoints(), "/")
@@ -30,5 +32,16 @@ object App extends IOApp {
         .drain
         .as(ExitCode.Success)
     } yield exitCode
+  }
+
+  def createSingleThreadContextShift[F[_] : Effect]: Resource[F, ContextShift[IO]] = {
+    Resource[F, ContextShift[IO]](
+      Effect[F].delay {
+        val executor = Executors.newSingleThreadExecutor()
+        val ec = ExecutionContext.fromExecutor(executor)
+        val ioContextShift = IO.contextShift(ec)
+        (ioContextShift, Effect[F].delay(executor.shutdown()))
+      }
+    )
   }
 }

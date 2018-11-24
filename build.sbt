@@ -72,9 +72,12 @@ lazy val jvmSettings = Seq(
     "ch.qos.logback" % "logback-classic" % LogbackVersion,
     "io.circe" %% "circe-generic" % "0.10.0",
     "io.circe" %% "circe-literal" % "0.10.0",
-    "com.github.pureconfig" %% "pureconfig" % "0.9.2"
+    "com.github.pureconfig" %% "pureconfig" % "0.9.2",
+    "com.pi4j" % "pi4j-parent" % "1.2-SNAPSHOT",
+    "com.pi4j" % "pi4j-core" % "1.2-SNAPSHOT"
   ),
-  target := baseDirectory.value / ".." / "target"
+  target := baseDirectory.value / ".." / "target",
+  resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
 
 lazy val app =
