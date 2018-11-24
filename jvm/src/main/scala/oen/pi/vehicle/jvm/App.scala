@@ -20,9 +20,11 @@ object App extends IOApp {
       conf <- AppConfig.read()
       blockingEc = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(4))
       staticEndpoints = StaticEndpoints[F](blockingEc)
+      vehicleControlEndpoints = VehicleControlEndpoints[F]
       exitCode <- BlazeBuilder[F]
         .bindHttp(conf.http.port, conf.http.host)
         .mountService(staticEndpoints.endpoints(), "/")
+        .mountService(vehicleControlEndpoints.endpoints(), "/vehicle")
         .serve
         .compile
         .drain
