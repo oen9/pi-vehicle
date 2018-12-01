@@ -9,7 +9,8 @@ lazy val sharedSettings = Seq(
   version := "0.1.0-SNAPSHOT",
   libraryDependencies ++= Seq(
     "com.lihaoyi" %%% "scalatags" % "0.6.7",
-    "org.typelevel" %% "cats-core" % "1.4.0"
+    "org.typelevel" %% "cats-core" % "1.4.0",
+    "com.lihaoyi" %%% "upickle" % "0.7.1"
   ),
   scalacOptions ++= Seq(
     "-Xlint",

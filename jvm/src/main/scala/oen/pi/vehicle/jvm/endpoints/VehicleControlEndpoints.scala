@@ -1,10 +1,10 @@
-package oen.pi.vehicle.jvm
+package oen.pi.vehicle.jvm.endpoints
 
 import cats.effect.Effect
-import org.http4s.HttpRoutes
-import org.http4s.dsl.Http4sDsl
 import cats.implicits._
 import oen.pi.vehicle.jvm.hardware.VehicleController
+import org.http4s.HttpRoutes
+import org.http4s.dsl.Http4sDsl
 import org.slf4j.LoggerFactory
 
 class VehicleControlEndpoints[F[_] : Effect](vController: VehicleController[F]) extends Http4sDsl[F] {
@@ -38,7 +38,7 @@ class VehicleControlEndpoints[F[_] : Effect](vController: VehicleController[F]) 
     case GET -> Root / "stop" =>
       for {
         _ <- vController.stop()
-        _ <- Effect[F].delay(logger.info("⛔"))
+        _ <- Effect[F].delay(logger.info("■"))
         response <- NoContent()
       } yield response
     case GET -> Root / "speed-up" =>

@@ -43,7 +43,7 @@ object Home {
           ),
           <.div(^.cls := "l-box pure-g is-center",
             <.div(^.cls := "l-box pure-u-1-4", BlueButton(BlueButton.Props("↰", left()))),
-            <.div(^.cls := "l-box pure-u-1-4", BlueButton(BlueButton.Props("⛔", stop()))),
+            <.div(^.cls := "l-box pure-u-1-4", BlueButton(BlueButton.Props("■", stop()))),
             <.div(^.cls := "l-box pure-u-1-4", BlueButton(BlueButton.Props("↱", right()))),
             <.div(^.cls := "l-box pure-u-1-4", " clicks: " + props.proxy.value.count)
           ),

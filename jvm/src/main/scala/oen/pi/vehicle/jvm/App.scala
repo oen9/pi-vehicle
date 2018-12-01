@@ -5,6 +5,7 @@ import java.util.concurrent.Executors
 import cats.effect._
 import cats.implicits._
 import oen.pi.vehicle.jvm.config.AppConfig
+import oen.pi.vehicle.jvm.endpoints.{StaticEndpoints, VehicleControlEndpoints, WebcamWebsockEndpoints}
 import oen.pi.vehicle.jvm.hardware.VehicleController
 import org.http4s.server.blaze.BlazeBuilder
 
@@ -23,10 +24,12 @@ object App extends IOApp {
       vehicleController <- VehicleController[F](conf.gpio, turningCS)
       staticEndpoints = StaticEndpoints[F](blockingEc)
       vehicleControlEndpoints = VehicleControlEndpoints[F](vehicleController)
+      webcamWebsockEndpoints = WebcamWebsockEndpoints[F]()
       exitCode <- BlazeBuilder[F]
         .bindHttp(conf.http.port, conf.http.host)
         .mountService(staticEndpoints.endpoints(), "/")
         .mountService(vehicleControlEndpoints.endpoints(), "/vehicle")
+        .mountService(webcamWebsockEndpoints.endpoints(), "/webcam")
         .serve
         .compile
         .drain

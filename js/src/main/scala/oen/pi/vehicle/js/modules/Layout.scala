@@ -3,7 +3,7 @@ package oen.pi.vehicle.js.modules
 import japgolly.scalajs.react.extra.router.{Resolution, RouterCtl}
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.{React, ScalaComponent}
-import oen.pi.vehicle.js.App.{AboutLoc, HomeLoc, Loc}
+import oen.pi.vehicle.js.App.{AboutLoc, HomeLoc, Loc, WebcamLoc}
 
 object Layout {
 
@@ -13,7 +13,8 @@ object Layout {
 
   val menuItems = Seq(
     MenuItem(0, "Home", HomeLoc),
-    MenuItem(1, "About", AboutLoc)
+    MenuItem(1, "Webcam", WebcamLoc),
+    MenuItem(2, "About", AboutLoc)
   )
 
   val component = ScalaComponent.builder[Props]("Layout")

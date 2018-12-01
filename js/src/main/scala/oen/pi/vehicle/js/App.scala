@@ -2,7 +2,7 @@ package oen.pi.vehicle.js
 
 import japgolly.scalajs.react.extra.router.{BaseUrl, Redirect, Router, RouterConfigDsl}
 import japgolly.scalajs.react.vdom.html_<^._
-import oen.pi.vehicle.js.modules.{About, Home, Layout}
+import oen.pi.vehicle.js.modules.{About, Home, Layout, Webcam}
 import oen.pi.vehicle.js.services.AppCircuit
 import org.scalajs.dom.html
 
@@ -13,6 +13,7 @@ object App {
 
   sealed trait Loc
   case object HomeLoc extends Loc
+  case object WebcamLoc extends Loc
   case object AboutLoc extends Loc
 
   @JSExport
@@ -25,10 +26,11 @@ object App {
 
       (emptyRule
         | staticRoute(root, HomeLoc) ~> render(homeWrapper(Home(_)))
+        | staticRoute("#webcam", WebcamLoc) ~> render(homeWrapper(Webcam(_)))
         | staticRoute("#about", AboutLoc) ~> render(About())
         )
         .notFound(redirectToPage(HomeLoc)(Redirect.Replace))
-        .setTitle(p => s"PAGE = $p | Example App")
+        .setTitle(p => s"pi-vehicle $p")
     }.renderWith(Layout.apply)
 
     val router = Router(BaseUrl.until_#, routerConfig)

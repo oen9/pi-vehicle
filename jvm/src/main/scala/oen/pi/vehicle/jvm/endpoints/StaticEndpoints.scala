@@ -1,4 +1,4 @@
-package oen.pi.vehicle.jvm
+package oen.pi.vehicle.jvm.endpoints
 
 import cats.effect.{ContextShift, Effect}
 import org.http4s.dsl.Http4sDsl
