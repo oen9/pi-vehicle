@@ -9,7 +9,8 @@ class AppConfigException(failures: ConfigReaderFailures) extends RuntimeExceptio
 case class Http(port: Int, host: String)
 case class StepMotor(pin01: Int, pin02: Int, pin03: Int, pin04: Int)
 case class Gpio(pinForward: Int, pinBackward: Int, pinSpeed: Int, stepMotor: StepMotor, startSpeed: Int, isDummy: Boolean)
-case class AppConfig(http: Http, gpio: Gpio)
+case class Webcam(isDummy: Boolean)
+case class AppConfig(http: Http, gpio: Gpio, webcam: Webcam)
 
 object AppConfig {
   def read[F[_] : Sync](): F[AppConfig] = {

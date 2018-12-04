@@ -14,7 +14,7 @@ import org.http4s.websocket.WebSocketFrame.Text
 import scala.concurrent.ExecutionContextExecutorService
 import scala.concurrent.duration.DurationDouble
 
-class WebcamService[F[_] : Effect](webcam: Webcam,
+class WebcamService[F[_] : Effect](webcam: Option[Webcam],
                                    blockingEc: ExecutionContextExecutorService,
                                    dummyCamRef: Ref[F, CancellableJob[IO]],
                                    realCamRef: Ref[F, CancellableJob[IO]],
@@ -26,7 +26,6 @@ class WebcamService[F[_] : Effect](webcam: Webcam,
   def turnOnDummyCam(): F[Unit] = for {
     _ <- turnOffRealCam()
     _ <- turnOffDummyCam()
-    _ <- Effect[F].delay(println("starting dummy webcam..."))
     dummyCancellable <- runDummyCam().start(blockingCS).to[F] // TODO only when dummyCamRef None OR always run turnOffDummyCam() as is now
     _ <- dummyCamRef.set(Some(dummyCancellable))
   } yield ()
@@ -57,7 +56,7 @@ class WebcamService[F[_] : Effect](webcam: Webcam,
 object WebcamService {
   type CancellableJob[F[_]] = Option[Fiber[F, Unit]]
 
-  def apply[F[_] : ConcurrentEffect](webcam: Webcam, blockingEc: ExecutionContextExecutorService): F[WebcamService[F]] = for {
+  def apply[F[_] : ConcurrentEffect](webcam: Option[Webcam], blockingEc: ExecutionContextExecutorService): F[WebcamService[F]] = for {
     dummyCamRef <- Ref.of[F, CancellableJob[IO]](None)
     realCamRef <- Ref.of[F, CancellableJob[IO]](None)
     topic <- Topic[F, VideoFrame](VideoFrame("", ""))
