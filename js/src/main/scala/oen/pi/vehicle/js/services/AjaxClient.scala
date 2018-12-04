@@ -10,4 +10,7 @@ object AjaxClient {
   def vehicleStop(): Unit = dom.ext.Ajax.get("/vehicle/stop")
   def vehicleSpeedUp(): Unit = dom.ext.Ajax.get("/vehicle/speed-up")
   def vehicleSpeedDown(): Unit = dom.ext.Ajax.get("/vehicle/speed-down")
+
+  def turnOnCam(): Unit = dom.ext.Ajax.get("/webcam/on")
+  def turnOffCam(): Unit = dom.ext.Ajax.get("/webcam/off")
 }

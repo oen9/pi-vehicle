@@ -22,7 +22,7 @@ object Layout {
       React.Fragment(
         <.div(^.cls := "header",
           <.div(^.cls := "home-menu pure-menu pure-menu-horizontal pure-menu-fixed",
-            props.router.link(HomeLoc)(^.cls := "pure-menu-heading", "Your site"),
+            props.router.link(HomeLoc)(^.cls := "pure-menu-heading", "pi-vehicle"),
             <.ul(^.cls := "pure-menu-list",
               menuItems.toVdomArray(i => {
                 <.li(^.key := i.idx, ^.cls := "pure-menu-item", (^.cls := "pure-menu-selected").when(i.location == props.resolution.page),

@@ -3,7 +3,8 @@ package oen.pi.vehicle.js.modules
 import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import oen.pi.vehicle.js.services.Clicks
+import oen.pi.vehicle.js.components.BlueButton
+import oen.pi.vehicle.js.services.{AjaxClient, Clicks}
 import oen.pi.vehicle.shared.{VideoFrame, WsData}
 import org.scalajs.dom
 import org.scalajs.dom.{CloseEvent, Event, MessageEvent, WebSocket}
@@ -12,18 +13,25 @@ import scala.scalajs.js
 
 object Webcam {
   val protocol = if ("http:" == dom.window.location.protocol) "ws://" else "wss://"
-  val url = protocol + dom.window.location.host +  "/webcam/ws"
+  val url = protocol + dom.window.location.host + "/webcam/ws"
 
   case class State(ws: Option[WebSocket], videoFrame: Option[VideoFrame])
 
   case class Props(proxy: ModelProxy[Clicks])
 
+  def turnOnCam() = Callback(AjaxClient.turnOnCam())
+  def turnOffCam() = Callback(AjaxClient.turnOffCam())
+
   class Backend($: BackendScope[Props, State]) {
     def render(state: State, props: Props) = {
-      <.div(^.cls := "content-head is-center",
+      <.div(^.cls := "content is-center",
+        <.div(^.cls := "l-box pure-g is-center",
+          <.div(^.cls := "l-box pure-u-1-2", BlueButton(BlueButton.Props("turn on", turnOnCam()))),
+          <.div(^.cls := "l-box pure-u-1-2", BlueButton(BlueButton.Props("turn off", turnOffCam()))),
+        ),
         state.videoFrame.fold(
           <.div("Loading webcam...")
-        )( v =>
+        )(v =>
           <.div(<.img(^.src := s"${v.frameType}${v.frame}"))
         ),
         Home(props.proxy)

@@ -7,18 +7,16 @@ import cats.Functor
 import cats.effect.Timer
 import fs2.Stream
 import javax.imageio.ImageIO
-import oen.pi.vehicle.shared.{VideoFrame, WsData}
-import org.http4s.websocket.WebSocketFrame
-import org.http4s.websocket.WebSocketFrame.Text
+import oen.pi.vehicle.shared.VideoFrame
 
 import scala.concurrent.duration.FiniteDuration
 
 object FakeCamUtils {
-  def createFakeCamStream[F[_] : Functor : Timer](d: FiniteDuration): Stream[F, WebSocketFrame] = {
-    val ticks: Stream[F, Stream[F, WebSocketFrame]] = Stream.awakeEvery[F](d).map(_ => Stream.empty)
-    val frames: Stream[F, Stream[F, WebSocketFrame]] = Stream(readSprite(): _*).map(s => {
-      val videoFrameJson = WsData.toJson(VideoFrame("data:image/png;base64,", s))
-      Stream(Text(videoFrameJson))
+  def createFakeCamStream[F[_] : Functor](d: FiniteDuration)(implicit t: Timer[F]): Stream[F, VideoFrame] = {
+    val ticks: Stream[F, Stream[F, VideoFrame]] = Stream.awakeEvery[F](d).map(_ => Stream.empty)
+    val frames: Stream[F, Stream[F, VideoFrame]] = Stream(readSprite(): _*).map(s => {
+      val videoFrame = VideoFrame("data:image/png;base64,", s)
+      Stream(videoFrame)
     }).repeat
 
     ticks.interleave(frames).flatten

@@ -6,7 +6,7 @@ import cats.implicits._
 import oen.pi.vehicle.jvm.config.Gpio
 import oen.pi.vehicle.jvm.hardware.VehicleController._
 
-class VehicleController[F[_] : Effect](stateRef: Ref[F, State],turningCS: ContextShift[IO], gpio: GpioController[F]) {
+class VehicleController[F[_] : Effect](stateRef: Ref[F, State], turningCS: ContextShift[IO], gpio: GpioController[F]) {
 
   val speedStep = 50
   val maxSpeed = 1024

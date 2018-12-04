@@ -75,8 +75,11 @@ lazy val jvmSettings = Seq(
     "io.circe" %% "circe-literal" % "0.10.0",
     "com.github.pureconfig" %% "pureconfig" % "0.9.2",
     "com.pi4j" % "pi4j-parent" % "1.2-SNAPSHOT",
-    "com.pi4j" % "pi4j-core" % "1.2-SNAPSHOT"
+    "com.pi4j" % "pi4j-core" % "1.2-SNAPSHOT",
+    "com.github.sarxos" % "webcam-capture" % "0.3.12"
   ),
+  dependencyOverrides += "co.fs2" %% "fs2-core" % "1.0.0-M5", // We need this due to 'unsubscribe bug'.
+                                                              // Fixed in 1.0.1 but then http4s-0.20.0-M3 doesn't work
   target := baseDirectory.value / ".." / "target",
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
