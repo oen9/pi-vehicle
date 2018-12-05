@@ -20,10 +20,10 @@ class WebcamWebsockEndpoints[F[_] : ConcurrentEffect : Timer](webcamService: Web
       WebSocketBuilder[F].build(toClient, fromClient)
 
     case GET -> Root / "on" =>
-      Ok(webcamService.turnOnDummyCam())
+      Ok(webcamService.turnOnCam())
 
     case GET -> Root / "off" =>
-      Ok(webcamService.turnOffDummyCam())
+      Ok(webcamService.turnOffCam())
   }
 }
 

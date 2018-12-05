@@ -15,11 +15,12 @@ object Webcam {
   val protocol = if ("http:" == dom.window.location.protocol) "ws://" else "wss://"
   val url = protocol + dom.window.location.host + "/webcam/ws"
 
-  case class State(ws: Option[WebSocket], videoFrame: Option[VideoFrame])
+  case class State(ws: Option[WebSocket], videoFrame: Option[VideoFrame], reconnectId: Option[Int] = None)
 
   case class Props(proxy: ModelProxy[Clicks])
 
   def turnOnCam() = Callback(AjaxClient.turnOnCam())
+
   def turnOffCam() = Callback(AjaxClient.turnOffCam())
 
   class Backend($: BackendScope[Props, State]) {
@@ -62,6 +63,12 @@ object Webcam {
 
         def onclose(e: CloseEvent): Unit = {
           println(s"""[ws] closed. Reason = "${e.reason}"""")
+          println("[ws] reconnecting...")
+          val recId = dom.window.setTimeout(() => conn().runNow(), 5000)
+          direct.modState(state => {
+            state.reconnectId.foreach(dom.window.clearInterval)
+            state.copy(videoFrame = None, reconnectId = Some(recId))
+          })
         }
 
         val ws = new WebSocket(url)
@@ -72,18 +79,30 @@ object Webcam {
         ws
       }
 
-      connect.attempt.flatMap {
-        case Right(ws) => Callback(println(s"[ws] connecting to $url")) >> $.modState(_.copy(ws = Some(ws)))
-        case Left(error) => Callback(println(s"[ws] error connecting: ${error.getMessage}"))
+      def conn(): CallbackTo[Unit] = {
+        connect.attempt.flatMap {
+          case Right(ws) => Callback(println(s"[ws] connecting to $url")) >> $.modState(_.copy(ws = Some(ws)))
+          case Left(error) => Callback(println(s"[ws] error connecting: ${error.getMessage}"))
+        }
       }
+
+      conn()
     }
 
     def end: Callback = {
-      def closeWebSocket = $.state.map(_.ws.foreach(_.close())).attempt
+      def clearReconnecting = $.state.map(_.reconnectId.foreach(dom.window.clearInterval))
+
+      def closeWebSocket = $.state.map(
+        _.ws.foreach(ws => {
+          ws.onclose = _ => ()
+          ws.close()
+          println("[ws] closed")
+        })
+      ).attempt
 
       def clearWebSocket = $.modState(_.copy(ws = None))
 
-      closeWebSocket >> clearWebSocket
+      clearReconnecting >> closeWebSocket >> clearWebSocket
     }
 
   }
