@@ -15,7 +15,9 @@ object Webcam {
   val protocol = if ("http:" == dom.window.location.protocol) "ws://" else "wss://"
   val url = protocol + dom.window.location.host + "/webcam/ws"
 
-  case class State(ws: Option[WebSocket], videoFrame: Option[VideoFrame], reconnectId: Option[Int] = None)
+  case class Fps(value: Int = 0, lastCalculated: Double = dom.window.performance.now(), framesWithoutCalculation: Int = 0)
+
+  case class State(ws: Option[WebSocket], videoFrame: Option[VideoFrame], reconnectId: Option[Int] = None, fps: Fps = Fps())
 
   case class Props(proxy: ModelProxy[Clicks])
 
@@ -35,8 +37,22 @@ object Webcam {
         )(v =>
           <.div(<.img(^.src := s"${v.frameType}${v.frame}"))
         ),
+        <.p(s"fps: ${state.fps.value}"),
         Home(props.proxy)
       )
+    }
+
+    def calculateFps(oldFps: Fps): Fps = {
+      val fpsInterval = 10
+      val fwc = oldFps.framesWithoutCalculation + 1
+
+      if (fwc == fpsInterval) {
+        val newLastCalculated = dom.window.performance.now
+        val delta = (newLastCalculated - oldFps.lastCalculated) / 1000
+        val fps = fpsInterval / delta
+        Fps(fps.toInt, newLastCalculated, 0)
+      } else
+        oldFps.copy(framesWithoutCalculation = fwc)
     }
 
     def start: Callback = {
@@ -50,7 +66,9 @@ object Webcam {
 
         def onmessage(e: MessageEvent): Unit = {
           WsData.fromJson(e.data.toString) match {
-            case v: VideoFrame => direct.modState(_.copy(videoFrame = Some(v)))
+            case v: VideoFrame =>
+              val newFps = calculateFps(direct.state.fps)
+              direct.modState(_.copy(videoFrame = Some(v), fps = newFps))
           }
         }
 

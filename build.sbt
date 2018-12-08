@@ -81,6 +81,7 @@ lazy val jvmSettings = Seq(
   dependencyOverrides += "co.fs2" %% "fs2-core" % "1.0.0-M5", // We need this due to 'unsubscribe bug'.
                                                               // Fixed in 1.0.1 but then http4s-0.20.0-M3 doesn't work
   target := baseDirectory.value / ".." / "target",
+  javaOptions in Universal ++= Seq("-jvm-debug 5005"),
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
 
