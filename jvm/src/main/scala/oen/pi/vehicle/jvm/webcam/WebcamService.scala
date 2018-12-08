@@ -1,5 +1,6 @@
 package oen.pi.vehicle.jvm.webcam
 
+import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.util.Base64
 
@@ -69,14 +70,13 @@ class WebcamService[F[_] : Effect](webcam: Option[Webcam],
 
   private[this] def runRealCam(webcam: Webcam): IO[Unit] = {
     (for {
-      _ <- blockingTimer.sleep(16.milliseconds)
-      videoFrame <- takeAndPrepareRealFrame(webcam)
-      _ <- Effect[F].toIO(topic.publish1(videoFrame))
+      _ <- blockingTimer.sleep(30.milliseconds)
+      rawImg <- IO.delay(webcam.getImage)
+      _ <- IO.delay(prepareFrame(rawImg)).flatMap(vf => Effect[F].toIO(topic.publish1(vf))).start(blockingCS)
     } yield ()).flatMap(_ => runRealCam(webcam))
   }
 
-  private[this] def takeAndPrepareRealFrame(webcam: Webcam): IO[VideoFrame] = IO.delay {
-    val img = webcam.getImage
+  private[this] def prepareFrame(img: BufferedImage) = {
     val baos = new ByteArrayOutputStream()
     ImageIO.write(img, "JPG", baos)
     val base64 = new String(Base64.getEncoder.encode(baos.toByteArray), "UTF8")
