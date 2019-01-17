@@ -1,4 +1,5 @@
 # pi-vehicle
+[![Build Status](https://travis-ci.org/oen9/pi-vehicle.svg?branch=master)](https://travis-ci.org/oen9/pi-vehicle)
 
 ## raspberry pi
 1. step motor 28byj-48 for turning
