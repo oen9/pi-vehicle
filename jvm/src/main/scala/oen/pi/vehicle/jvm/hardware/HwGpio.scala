@@ -40,7 +40,7 @@ class HwGpio[F[_] : Effect](val conf: Gpio) extends GpioController[F] {
 
   def setGpioSpeed(newSpeed: Int): F[Unit] = Effect[F].delay(speedController.setPwm(newSpeed))
 
-  def simpleTurnRight(): F[Unit] = Effect[F].delay {
+  def simpleTurnLeft(): F[Unit] = Effect[F].delay {
     (0 until stepCount).foreach { _ =>
       smSequencesReversed.foreach { smSeq =>
         smSeq.zip(motorPins).foreach(v => v._2.setState(v._1))
@@ -49,7 +49,7 @@ class HwGpio[F[_] : Effect](val conf: Gpio) extends GpioController[F] {
     }
   }
 
-  def simpleTurnLeft(): F[Unit] = Effect[F].delay {
+  def simpleTurnRight(): F[Unit] = Effect[F].delay {
     (0 until stepCount).foreach { _ =>
       smSequences.foreach { smSeq =>
         smSeq.zip(motorPins).foreach(v => v._2.setState(v._1))
